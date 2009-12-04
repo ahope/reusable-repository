@@ -173,6 +173,8 @@ public class ServletConsts {
   
   public static final String CSV_FILENAME_APPEND = "_results.csv";
   
+  public static final String XML_FILENAME_APPEND = "_results.xml";
+  
   public static final String KML_FILENAME_APPEND = "_results.kml";
 
   public static final String CREATE_EXTERNAL_SERVICE_BUTTON_LABEL = "Create Connection To External Service";
