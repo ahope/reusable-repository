@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-fileupload-1.2.1.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-lang-2.4.jar"/>
@@ -21,5 +19,7 @@
 	<classpathentry kind="lib" path="war/WEB-INF/lib/javarosa.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/jsr305.jar"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/kxml2-2.3.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.2.6"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
