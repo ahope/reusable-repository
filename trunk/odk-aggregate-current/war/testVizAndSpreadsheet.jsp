@@ -59,7 +59,13 @@
     
     ListQuery query = new ListQuery(listFeedUrl);
     // Only get the filtered stuff
-	query.setSpreadsheetQuery(col3name + " = true");
+	
+	String filterQuery = ""; 
+	if (!col3name.equals("bah3")){
+		filterQuery = col3name + " = true"; 
+	}
+	
+	query.setSpreadsheetQuery(filterQuery);
 	ListFeed feed = service.query(query, ListFeed.class);
 	
 	
@@ -75,10 +81,11 @@
      	 var data = new google.visualization.DataTable();
 <%        
 		
+		if ( (!col1name.equals("bah1")) && 
+			 (!col2name.equals("bah2"))){
 		
 		out.println("data.addColumn('string', '"+ col1name +"');");
 		  out.println("data.addColumn('number', '"+ col2name +"');");
-		//  out.println("data.addColumn('number', '"+ col3name +"')");
 
 		  out.println("data.addRows("+feed.getEntries().size()+");");//worksheetEntry.getColCount()-1+");");
 		  
@@ -104,17 +111,24 @@
 		 	
 		 	curRow++;
 		 }
-		 
+		 }
 		out.println("\n\nvar baseUrl = \"" + baseUrl +"\";" );
 		 out.println("\n\nvar col1Name = \"" + col1name +"\";" );
 		 out.println("var col2Name = \"" + col2name +"\";" );
 		 out.println("var col3Name = \"" + col3name +"\";" ); 
 		 
+		 boolean drawChart = (!col1name.equals("bah1")) && (!col2name.equals("bah2")); 
+		 
+		 out.println("var drawChart = "+ drawChart + ";"); 
+		 
 %>		  
       function drawChart() {
-      	  
+      	  if (drawChart)
+      	  {
+      	  alert("updating chart"); 
         var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
         chart.draw(data, {width: 400, height: 240, min: 0});
+        }
          
       }
       
@@ -147,32 +161,6 @@
 
 <div id="container">
     
-<table border=5>
-<% 
-	for (ListEntry entry : feed.getEntries()) {
-%>
-<tr>
-
-<% 
-	for (String tag : entry.getCustomElements().getTags()) {
-		String value = "-"; 
-        if ((tag.equals(col1name)) ||
-            (tag.equals(col2name))){
-        	value = entry.getCustomElements().getValue(tag);	    
-        }
-  %>
-<td valign="top">
-<%= value%>
-</td>
-<%
- }
-%>
-</tr>  
-<%
-	}
-%>  
-
-</table>
 
 <div>
 <P>
@@ -199,11 +187,11 @@
 		        			"chooseCol3");
 	   		        			
 %> 
-	Y-axis column:
+	Y-axis column: (labels)
 <%	   		        			
 	   out.println(dropDownHtml1);
 %> 
-	X-axis column:
+	X-axis column: (values)
 <%	
 	   out.println(dropDownHtml2);
 %> 
