@@ -210,7 +210,7 @@ public class ServletUtilBase extends HttpServlet {
         + filename + BasicConsts.QUOTE + BasicConsts.SEMI_COLON);
   }
 
-  protected String getServerURL(HttpServletRequest req) {
+  public static String getServerURL(HttpServletRequest req) {
     String serverName = req.getServerName();
     int port = req.getServerPort();
     if (port != HtmlConsts.WEB_PORT) {
@@ -296,5 +296,18 @@ protected String generateAuthButton(String scope, String buttonText, Map<String,
                
                     return form.toString();
                   }
+public String generateUrlButton(String buttonText, Map<String, String> params, String url){
+	
+	String returnUrl = "http://" + HtmlUtil.createLinkWithProperties(url, params);
+	StringBuilder form = new StringBuilder(); 
+	 form.append(HtmlConsts.LINE_BREAK);
+     form.append(HtmlUtil.createFormBeginTag(returnUrl, null, ServletConsts.POST));
+     form.append(HtmlUtil.createInput(HtmlConsts.INPUT_TYPE_SUBMIT, null, buttonText));
+     form.append(HtmlConsts.FORM_CLOSE);
+
+     return form.toString();
+}
  
 }
+
+

@@ -230,11 +230,12 @@ public class HtmlUtil {
 	  // TODO: It would be nice to build this with all the built in stuff Waylon Provides. 
 	  // BUT, I'm in a time crunch, Hard-coded it is. 
 	  public static String createDropDownForm(String actionName, 
-			  								  String postMethodOnSubmit, 
+			  								  String postMethodOnChange, 
 			  								  String formName, 
 			  								  Set<String> optionValues, 
 			  								  Set<String> optionNames, 
-			  								  String typeSubmitValue){
+			  								  String typeSubmitValue, 
+			  								  String id){
 		  
 		  List<String> optVals = new ArrayList<String>();
 		  optVals.addAll(optionValues);
@@ -244,10 +245,12 @@ public class HtmlUtil {
 		  
 		  StringBuilder html = new StringBuilder(); 
 		  
-		  html.append("<FORM ACTION=\"");
-		  html.append(actionName); 
-		  html.append("\" METHOD=POST onSubmit=\"");
-		  html.append(postMethodOnSubmit); 
+		  html.append("<FORM ");
+		  //html.append(actionName); 
+		  html.append(" onChange=\"");
+		  html.append(postMethodOnChange); 
+		  html.append("\" ID=\"");
+		  html.append(id);
 		  html.append("\">");
 		  
 		  html.append("<SELECT NAME=\""); 
@@ -257,7 +260,7 @@ public class HtmlUtil {
 		  for(int i=0; i<optionValues.size(); i++){
 			  html.append("<OPTION VALUE=\""); 
 			  html.append(optVals.get(i)); 
-			  html.append("\">");
+			  html.append("\">"); 
 			  html.append(optNames.get(i)); 
 			  html.append("\n");
 		  }
