@@ -39,41 +39,56 @@ public class ShowColumnsServlet extends ServletUtilBase {
 		service.setAuthSubToken(spreadAuth, null);
 		
 		URL feedUri = new URL("http://spreadsheets.google.com/feeds/worksheets/"+key+"/private/full");
-//http://docs.google.com/feeds/default/private/full/");
 
         try{
         	WorksheetFeed listFeed = service.getFeed(feedUri, WorksheetFeed.class);
-
-        	List<WorksheetEntry> worksheets = listFeed.getEntries();//spreadsheetEntry.getWorksheets();
+        	
+        	List<WorksheetEntry> worksheets = listFeed.getEntries();
         	for (int i = 0; i < worksheets.size(); i++) {
         	  WorksheetEntry worksheet = worksheets.get(i);
         	  String title = worksheet.getTitle().getPlainText();
-        	  int rowCount = worksheet.getRowCount();
-        	  int colCount = worksheet.getColCount();
         	  
-        	  resp.getWriter().print("<P>"+title+" - rows: "+ rowCount + " cols: " + colCount); 
         	}
         	
-        	resp.getWriter().print("<P><P><B>Doing the list iteration; not sure what II'm printing</B><P><P>");
+        	String htmlHead = "<html><head><title>ODK Viz</title>" +
+  			"<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>" +
+  			"<script type=\"text/javascript\" src=\"http://reusable-app-id.appspot.com/javascripts/viz.js\"></script>" +
+  			"</head>";
         	
+        	resp.getWriter().print(htmlHead);
+        	
+        	String htmlBody = "<body \">";
+        	
+        	resp.getWriter().print(htmlBody);
+        	        	
         	WorksheetEntry worksheetEntry = worksheets.get(0);
-        	
         	
         	URL listFeedUrl = worksheetEntry.getListFeedUrl();
         	ListFeed feed = service.getFeed(listFeedUrl, ListFeed.class);
-        	
-        	resp.getWriter().print("<P>Spreadsheet Headers/Column names<P>"); 
-        	
+        	        	
         	ListEntry firstRow = feed.getEntries().get(0);
-        	String dropDownHtml = HtmlUtil.createDropDownForm("test", "test", "blah", 
-        			firstRow.getCustomElements().getTags(), 
-        			firstRow.getCustomElements().getTags(), 
-        			"test", 
-        			"chooseCol"); // entry.getCustomElements().getTags(); 
         	
-        	resp.getWriter().print(dropDownHtml);
+//        	String dropDownHtml = HtmlUtil.createDropDownForm("#", "post", "gsscolumns", 
+//        			firstRow.getCustomElements().getTags(), 
+//        			firstRow.getCustomElements().getTags(), 
+//        			"Select"); 
         	
-        	resp.getWriter().print("<P>");
+        	String chartingForm = "<form action=\"javascript:doCharting();\">"
+        		+ "<input id=\"spreadsheeturi\" type=\"hidden\" name=\"spreadsheeturi\" value=\""+ feedUri.toString() +"\" >"
+        		+ "<div id=\"variableselection\">"
+        		+ "<select id=\"columnselector\" >";
+        	
+        	int charCounter = (int)'A';
+        	
+        	for( String tag : firstRow.getCustomElements().getTags()){
+        		chartingForm += "<option value=\""+((char)charCounter++)+"\" >" + tag + "</option>";
+        	}
+        	
+        	chartingForm += "</select></div><input type=\"submit\" id=\"dochart\" name=\"dochart\" />" +
+        			"</form><div id=\"chart_div\" ></div>";
+        	
+        	resp.getWriter().print(chartingForm);
+        	//resp.getWriter().print(dropDownHtml);
         	
         	String docSessionToken = getParameter(request, ServletConsts.DOC_AUTH);
     	    String spreadSessionToken = getParameter(request, ServletConsts.SPREAD_AUTH);
@@ -91,28 +106,28 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	String testVizUrl = 
 		    	  "http://" + HtmlUtil.createLinkWithProperties(getServerURL(request) + "/testVizAndSpreadsheet.jsp", params);
 		      
-		      resp.getWriter().print("<P>"); 
 		      
 		      String vizHtml =
 		          HtmlUtil.wrapWithHtmlTags(HtmlConsts.P, "Or, try the viz stuff  "
 		              + HtmlUtil.createHref(testVizUrl, "Viz Spreadsheet"));
 		      resp.getWriter().print(vizHtml);
         	
-        	resp.getWriter().print("<P><HR><P>"); 
         	
-        	for (ListEntry entry : feed.getEntries()) {
-        	  resp.getWriter().print(entry.getTitle().getPlainText() + "| ");
-        	  
-        	  for (String tag : entry.getCustomElements().getTags()) {
-        	    resp.getWriter().print(" ____ tag: " + tag + " value: "+ entry.getCustomElements().getValue(tag) );
-        		  /*System.out.println("  <gsx:" + tag + ">" +
-        				  	entry.getCustomElements().getValue(tag) + "</gsx:" + tag + ">"); */
-        	  }
-        	  
-        	  
-        	  resp.getWriter().print("<P>");
-        	}
+//        	for (ListEntry entry : feed.getEntries()) {
+//        	  resp.getWriter().print(entry.getTitle().getPlainText() + "| ");
+//        	  
+//        	  for (String tag : entry.getCustomElements().getTags()) {
+//        	    resp.getWriter().print(" ____ tag: " + tag + " value: "+ entry.getCustomElements().getValue(tag) );
+//        		  /*System.out.println("  <gsx:" + tag + ">" +
+//        				  	entry.getCustomElements().getValue(tag) + "</gsx:" + tag + ">"); */
+//        	  }
+//        	  
+//        	}
         	
+		      
+		  String htmlEnd = "</body></html>";
+		  
+		  resp.getWriter().print(htmlEnd);
         	
         	
 
