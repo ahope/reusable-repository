@@ -44,8 +44,6 @@ public class ShowColumnsServlet extends ServletUtilBase {
         try{
         	WorksheetFeed listFeed = service.getFeed(feedUri, WorksheetFeed.class);
 
-        	resp.getWriter().print("Info for public spreadsheet: something published by ahandrew" );
-        	
         	List<WorksheetEntry> worksheets = listFeed.getEntries();//spreadsheetEntry.getWorksheets();
         	for (int i = 0; i < worksheets.size(); i++) {
         	  WorksheetEntry worksheet = worksheets.get(i);
@@ -53,14 +51,13 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	  int rowCount = worksheet.getRowCount();
         	  int colCount = worksheet.getColCount();
         	  
-        	  resp.getWriter().print("<P>"+title+" - rows: "+ rowCount + " cols: " + colCount);
-        	  
-        	  
+        	  resp.getWriter().print("<P>"+title+" - rows: "+ rowCount + " cols: " + colCount); 
         	}
         	
         	resp.getWriter().print("<P><P><B>Doing the list iteration; not sure what II'm printing</B><P><P>");
         	
         	WorksheetEntry worksheetEntry = worksheets.get(0);
+        	
         	
         	URL listFeedUrl = worksheetEntry.getListFeedUrl();
         	ListFeed feed = service.getFeed(listFeedUrl, ListFeed.class);
@@ -71,7 +68,8 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	String dropDownHtml = HtmlUtil.createDropDownForm("test", "test", "blah", 
         			firstRow.getCustomElements().getTags(), 
         			firstRow.getCustomElements().getTags(), 
-        			"test"); // entry.getCustomElements().getTags(); 
+        			"test", 
+        			"chooseCol"); // entry.getCustomElements().getTags(); 
         	
         	resp.getWriter().print(dropDownHtml);
         	
