@@ -188,6 +188,41 @@
     <url-pattern>/confirm</url-pattern>
   </servlet-mapping>
 
+	<servlet>
+		<servlet-name>VizProject2</servlet-name>
+		<servlet-class>edu.washington.cs.aha.VizProject2Servlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>VizProject2</servlet-name>
+		<url-pattern>/vizproject2</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ListSpreadsheets</servlet-name>
+		<servlet-class>edu.washington.cs.aha.ListSpreadsheetsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ListSpreadsheets</servlet-name>
+		<url-pattern>/listSpreadsheets</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>ChooseColumns</servlet-name>
+		<servlet-class>edu.washington.cs.aha.ShowColumnsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ChooseColumns</servlet-name>
+		<url-pattern>/chooseCols</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>DoAuthentication</servlet-name>
+		<servlet-class>edu.washington.cs.aha.AuthenticationServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DoAuthentication</servlet-name>
+		<url-pattern>/doAuth</url-pattern>
+	</servlet-mapping>
+
+
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
