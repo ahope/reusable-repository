@@ -52,12 +52,14 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	
         	String htmlHead = "<html><head><title>ODK Viz</title>" +
   			"<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>" +
+  			"<script src=\"http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAKjeH9Qg_A_iFIbGEd2AcAxT-6yxDzOJ4df4DFEQGoaZGkAZ1SxRVaF11uC1C7Bo8_PI698GRH9Rwvw&sensor=false\" "+
+  		    "type=\"text/javascript\"></script> " +
   			"<script type=\"text/javascript\" src=\"http://reusable-app-id.appspot.com/javascripts/viz.js\"></script>" +
   			"</head>";
         	
         	resp.getWriter().print(htmlHead);
         	
-        	String htmlBody = "<body \">";
+        	String htmlBody = "<body onunload=\"GUnload();\">";
         	
         	resp.getWriter().print(htmlBody);
         	        	
@@ -67,11 +69,6 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	ListFeed feed = service.getFeed(listFeedUrl, ListFeed.class);
         	        	
         	ListEntry firstRow = feed.getEntries().get(0);
-        	
-//        	String dropDownHtml = HtmlUtil.createDropDownForm("#", "post", "gsscolumns", 
-//        			firstRow.getCustomElements().getTags(), 
-//        			firstRow.getCustomElements().getTags(), 
-//        			"Select"); 
         	
         	String chartingForm = "<form action=\"javascript:doCharting();\">"
         		+ "<input id=\"spreadsheeturi\" type=\"hidden\" name=\"spreadsheeturi\" value=\""+ feedUri.toString() +"\" >"
@@ -85,10 +82,9 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	}
         	
         	chartingForm += "</select></div><input type=\"submit\" id=\"dochart\" name=\"dochart\" />" +
-        			"</form><div id=\"chart_div\" ></div>";
+        			"</form><form id=\"mapform\" action=\"javascript:doMapping();\"></form><div id=\"chart_div\" ></div><div style=\"width: 400px; height: 300px;\" id=\"map_div\"></div>";
         	
         	resp.getWriter().print(chartingForm);
-        	//resp.getWriter().print(dropDownHtml);
         	
         	String docSessionToken = getParameter(request, ServletConsts.DOC_AUTH);
     	    String spreadSessionToken = getParameter(request, ServletConsts.SPREAD_AUTH);
@@ -99,47 +95,22 @@ public class ShowColumnsServlet extends ServletUtilBase {
     		    params.put(ServletConsts.DOC_AUTH, docSessionToken);
     		    params.put(ServletConsts.SPREAD_AUTH, spreadSessionToken);
     		    params.put("key", key);
-    		    params.put("col1", "name");
-    		    params.put("col2", "location");
-    		    params.put("col3", "going");
+
     		    
         	String testVizUrl = 
 		    	  "http://" + HtmlUtil.createLinkWithProperties(getServerURL(request) + "/testVizAndSpreadsheet.jsp", params);
 		      
 		      
-		      String vizHtml =
-		          HtmlUtil.wrapWithHtmlTags(HtmlConsts.P, "Or, try the viz stuff  "
-		              + HtmlUtil.createHref(testVizUrl, "Viz Spreadsheet"));
-		      resp.getWriter().print(vizHtml);
-        	
-        	
-//        	for (ListEntry entry : feed.getEntries()) {
-//        	  resp.getWriter().print(entry.getTitle().getPlainText() + "| ");
-//        	  
-//        	  for (String tag : entry.getCustomElements().getTags()) {
-//        	    resp.getWriter().print(" ____ tag: " + tag + " value: "+ entry.getCustomElements().getValue(tag) );
-//        		  /*System.out.println("  <gsx:" + tag + ">" +
-//        				  	entry.getCustomElements().getValue(tag) + "</gsx:" + tag + ">"); */
-//        	  }
-//        	  
-//        	}
-        	
-		      
 		  String htmlEnd = "</body></html>";
 		  
 		  resp.getWriter().print(htmlEnd);
-        	
         	
 
         }
         catch(Exception e){
         	resp.getWriter().print("Something isn't working right. ");
         	resp.getWriter().print(e.getMessage());
-        }
-
-		
-		//WorksheetFeed worksheets_feed = service.//key, //visibility="public', projection='values');  
-		
+        }		
 		
 	}
 
