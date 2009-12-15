@@ -225,16 +225,16 @@ function handleMapQueryResponse(response) {
 
 	var data = response.getDataTable();
 	
-	for (var row = 0; row < data.getNumberOfRows(); row++){
-		var toAlert = "";
-		for (var col = 0; col < data.getNumberOfColumns(); col++) {
-			toAlert += data.getFormattedValue(row, col) + " ";			
-		}
-		alert(toAlert);
-	}	
-
 	var map = new GMap2(document.getElementById("map_div"));
+	map.setUIToDefault();
+	map.setCenter(new GLatLng(data.getFormattedValue(0,0), data.getFormattedValue(0,1)), 13);
 
+	
+	for (var row = 0; row < data.getNumberOfRows(); row++){		
+		var point = new GLatLng(data.getFormattedValue(row, 0),
+								data.getFormattedValue(row, 1));
+		map.addOverlay(new GMarker(point));
+	}
 }
 
 
