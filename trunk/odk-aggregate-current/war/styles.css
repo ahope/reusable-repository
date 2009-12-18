@@ -44,11 +44,12 @@ h1, h2, h3 {
 	margin-right: auto;
 	margin-left: 50;
 	text-align: left;
-	padding: 0px;
+	padding: 20px;
 	width: 820px;
 	float: left;
 	border: 1px solid #DDCDFF;
 	background-color: #000000;
+	color: #EEEEEE; 
 	}
 	
 #container table{

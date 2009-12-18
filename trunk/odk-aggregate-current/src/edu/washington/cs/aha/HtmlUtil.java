@@ -283,6 +283,7 @@ public class HtmlUtil {
 		  return html.toString(); 		  
 	  }
 	  
+	  
 	  /*
 	  public static String wrapResultTableWithHtmlTags(ResultTable resultTable, boolean addCheckboxes) {
 	    StringBuilder html = new StringBuilder();
