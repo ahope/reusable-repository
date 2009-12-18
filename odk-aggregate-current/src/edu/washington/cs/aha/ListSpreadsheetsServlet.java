@@ -40,6 +40,8 @@ public class ListSpreadsheetsServlet extends ServletUtilBase {
 		// Have the URLs for each spreadsheet include the user auth token 
 
 		resp.getWriter().print("you're logged in. That's great!");
+		
+		resp.getWriter().print("<P>Sometimes I have connection time out issues. Try reloading. It might be worse if you have many spreadsheets.</P>");
 
 		String docSessionToken = getParameter(request, ServletConsts.DOC_AUTH);
 		String spreadSessionToken = getParameter(request, ServletConsts.SPREAD_AUTH);
@@ -84,9 +86,27 @@ public class ListSpreadsheetsServlet extends ServletUtilBase {
 				params.put(ServletConsts.DOC_AUTH, docSessionToken);
 				params.put(ServletConsts.SPREAD_AUTH, spreadSessionToken);
 				params.put("key", entry.getKey());
+				params.put("sheetName", entry.getTitle().getPlainText()); 
+				
+				
+				// Do Summary URL
+				String summUrl = 
+					"http://" +
+					HtmlUtil.createLinkWithProperties(getServerURL(request) + "/summarizeColumn.jsp", params);
+
+
+				String summHtml =
+					HtmlUtil.wrapWithHtmlTags(HtmlConsts.P, " "
+							+ HtmlUtil.createHref(summUrl, "Go to summary view"));
+
+				// HtmlUtil.createHref("", entry.getTitle().getPlainText()); 
+				resp.getWriter().print(summHtml);
+				
 				params.put("col1", "bah1");
 				params.put("col2", "bah2"); 
 				params.put("col3", "bah3"); 
+				params.put("col1type", "bah1");
+				params.put("col2type", "bah2");
 
 				/*     String returnUrl =
 	              "http://"

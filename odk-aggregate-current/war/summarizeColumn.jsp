@@ -21,7 +21,7 @@
 
 <html>
 <head>
-<title>Basic Viz & Filter</title>
+<title>Summarizing Spreadsheet Column</title>
 <link rel="stylesheet" href="styles.css" type="text/css" />
 
 	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -40,11 +40,8 @@
 	
 	String spreadAuth = request.getParameter("spreadAuth");
 	String docAuth = request.getParameter("docAuth"); 
-	String col1name = request.getParameter("col1"); 
-	String col2name = request.getParameter("col2"); 
-	String col3name = request.getParameter("col3"); 
-	String col1type = request.getParameter("col1type"); 
-	String col2type = request.getParameter("col2type"); 
+	String sumColName = request.getParameter("summarizeCol"); 
+	String filterColName = request.getParameter("filterCol");
 	String sheetName = request.getParameter("sheetName"); 
 	service.setAuthSubToken(spreadAuth, null);
 	
@@ -55,11 +52,10 @@
 	params.put("sheetName", sheetName); 
 	
 	
+	
 	// Saving this for use later
 	String baseUrl = HtmlUtil.createLinkWithProperties(//ServletUtilBase.getServerURL(request) + 
                             request.getRequestURI(), params);
-    String sumBaseUrl = HtmlUtil.createLinkWithProperties(//ServletUtilBase.getServerURL(request) + 
-                            "summarizeColumn.jsp", params);               	
                	
 	URL feedUri = new URL("http://spreadsheets.google.com/feeds/worksheets/"+key+"/private/full");
 
@@ -74,14 +70,19 @@
     // Only get the filtered stuff
 	
 	String filterQuery = ""; 
-	if (!col3name.equals("bah3")){
-		filterQuery = col3name + " = true"; 
+	
+	if (filterColName == null){
+		filterColName = "bah3"; 
+	}
+	
+	if (!filterColName.equals("bah3")){
+		filterQuery = filterColName + " = true"; 
 	}
 	
 	query.setSpreadsheetQuery(filterQuery);
 	ListFeed feed = service.query(query, ListFeed.class);
 	
-	
+	// Now, I have a ListFeed; let's summarize it
     ListEntry firstRow = feed.getEntries().get(0);
 	
 %>
@@ -90,76 +91,90 @@
     <script type="text/javascript">  
       
      	 var data = new google.visualization.DataTable();
+     	 var sumData = new google.visualization.DataTable(); 
 <%        
 		
-		if ( (!col1name.equals("bah1")) && 
-			 (!col2name.equals("bah2"))){
 		
-		  out.println("data.addColumn('string', '"+ col1name +"');");
-		  out.println("data.addColumn('"+col2type+"', '"+ col2name +"');");
-
-		  out.println("data.addRows("+feed.getEntries().size()+");");//worksheetEntry.getColCount()-1+");");
+		Map<String, Integer> questionAnswersAndCountsMap = new HashMap<String, Integer>(); 
+		
+		if (sumColName == null){
+			Object[] tags = (feed.getEntries().get(0)).getCustomElements().getTags().toArray(); 
+			sumColName = (String)tags[0];
+		}
+		
+		System.out.println("sumColName: " + sumColName); 
+		
+		if ( !sumColName.equals("bah1")){ // we have a valid colName
+		
+			// Go through all the rows
+			for (ListEntry entry : feed.getEntries()) {
+			
+				for (String tag : entry.getCustomElements().getTags()) {
+				
+					
+					if (tag.equals(sumColName)){
+			        	String val = entry.getCustomElements().getValue(tag);
+			        	// If the val (response) is already in the map, increment; 
+			        	// Else add it
+			        	
+			        	System.out.println("val: " + val); 
+						if (val != null){
+							val = val.replace("'", "*"); 
+							System.out.println("clean val: " + val);
+						}
+			        	
+			        	if (questionAnswersAndCountsMap.containsKey(val)){
+			        		int count = ((Integer)questionAnswersAndCountsMap.get(val)).intValue(); 
+			        		questionAnswersAndCountsMap.put(val, new Integer(count + 1)); 
+			        	}
+			        	else{
+			        		questionAnswersAndCountsMap.put(val, new Integer(1)); 
+			        	}	    
+			        }
+			 	} // for tag
+		 	}// For ListEntry/row
+		 	
+		 	// Now we have the counts, let's dump 'em 
+		 	
+		  out.println("data.addColumn('string', '"+ sumColName +"');");
+		  out.println("data.addColumn('number', 'count');");
 		  
-		  // label = col1, value=col2
+		  
+		  out.println("data.addRows("+questionAnswersAndCountsMap.keySet().size()+");");
+		  
 		  int curRow = 0; 
-		  for (ListEntry entry : feed.getEntries()) {
-
-			String entryLabel = ""; 
-			String entryValue = ""; 
-			
-			for (String tag : entry.getCustomElements().getTags()) {
-			
-				if (tag.equals(col1name)){
-		        	entryLabel = entry.getCustomElements().getValue(tag);	    
-		        }
-		        if (tag.equals(col2name)){
-		        	entryValue = entry.getCustomElements().getValue(tag); 
-		        }
-		 	} // for tag
+		  
+		  for(String answer : questionAnswersAndCountsMap.keySet()){
+		  	int val = ((Integer)questionAnswersAndCountsMap.get(answer)).intValue(); 
+		  	
+		  	out.println("data.setValue("+curRow+", 0, '" + answer + "');");
+			out.println("data.setValue("+curRow+", 1, " + val+ ");"); 	
+		  	
+		  	curRow++;
+		  }
 		 	
-		 	if (entryLabel != null && entryValue != null){
-			 	out.println("data.setValue("+curRow+", 0, '" + entryLabel + "');");
-			 	
-			 	if (col2type == "string"){
-			 		out.println("data.setValue("+curRow+", 1, '" + entryValue+ "');");
-			 	}
-			 	else{
-			 		out.println("data.setValue("+curRow+", 1, " + entryValue+ ");"); // no quotes 
-			 	}
-			 	  
-			 	
-			 	
-			 	curRow++;
-		 	}// for if
 		 	
-		 }// for entry
-		 }// if cols
+	    } // If we have valid column name	
+		
 		 
 		 out.println("\n\nvar newBaseUrl = \"" + baseUrl +"\";" );
+		 out.println("\n\nvar sumColumnName = \"" + sumColName +"\";" );
+		 out.println("var filterColumnName = \"" + filterColName +"\";" );
 		 
-		 
-		 out.println("\n\nvar summarizeBaseUrl = \"" + sumBaseUrl +"\";" );
-		 
-		 
-		 out.println("\n\nvar col1Name = \"" + col1name +"\";" );
-		 out.println("var col2Name = \"" + col2name +"\";" );
-		 out.println("var col3Name = \"" + col3name +"\";" ); 
-		 
-		 boolean drawChart = (!col1name.equals("bah1")) && (!col2name.equals("bah2")); 
+		 boolean drawChart = true;  
 		 
 		 out.println("var doDrawChart = "+ drawChart + ";"); 
 		 
 %>		  
 
-      var curChartViz = 2; 
+      var curChartViz = 1; 
       var colType1 = 1; 
       var colType2 = 2; 
       
       function drawChart() {
-      	  alert("deciding whether to draw chart");
       	  if (doDrawChart)
       	  {
-      	  	alert("updating chart. curChartViz: " + curChartViz); 
+      	  	 
 	        var chart;  
 	        
 	        document.getElementById('chart_div').innerHTML = '';
@@ -197,28 +212,10 @@
           }
       }
       
-      function setCol1Name(dropDown){
-        col1Name = dropDown.options[dropDown.selectedIndex].value; 
-      }
-      
-      function setCol2Name(dropDown){
-      	col2Name = dropDown.options[dropDown.selectedIndex].value; 
-      }
-      
-      function setCol3Name(dropDown){
-      	col3Name = dropDown.options[dropDown.selectedIndex].value; 
-      }
 
 	  function reloadWithNewParams(){
-	    alert("reloading. NEWbaseUrl: " + newBaseUrl); 
-	  	newUrl = newBaseUrl + "&col1=" + col1Name + "&col2="+col2Name + "&col3="+col3Name + "&col1type=" + colType1+"&col2type="+colType2;
-	  	alert("newUrl: " + newUrl); 
-	  	window.location = newUrl; 
-	  }
-	  
-	  function summarize(){
-	  	newUrl = summarizeBaseUrl + "&summarizeCol=" + col1Name + "&filterCol="+col3Name;
-	  	alert("newUrl: " + newUrl); 
+	     
+	  	newUrl = newBaseUrl + "&summarizeCol=" + sumColumnName + "&filterCol="+filterColumnName;
 	  	window.location = newUrl; 
 	  }
 	  
@@ -226,15 +223,14 @@
 	  	curChartViz = whichVizDropDown.options[whichVizDropDown.selectedIndex].value;  
 	    drawChart(); 
 	  }
-
-	  function colTypeChanged(whichChooseTypeDropDown, whichCol){
-	  	if(whichCol == 1){
-	  		colType1 = whichChooseTypeDropDown.options[whichChooseTypeDropDown.selectedIndex].value;
-	  	}
-	  	else if(whichCol == 2){
-	  		colType2 = whichChooseTypeDropDown.options[whichChooseTypeDropDown.selectedIndex].value;
-	  	}
-	  }
+	  
+	  function setSumColName(dropDown){
+        sumColumnName = dropDown.options[dropDown.selectedIndex].value; 
+      }
+      
+      function setFilterColName(dropDown){
+      	filterColumnName = dropDown.options[dropDown.selectedIndex].value; 
+      }
 
     </script>
 </head>
@@ -249,7 +245,7 @@
 
 <div>
 <P>
-<b>Spreadsheet name: (coming)</b>
+<H1>Spreadsheet name: <%= sheetName %></H1>
 </P>
 <P>
 
@@ -275,47 +271,36 @@
 	  
 	   		        			
 %> 
-	Y-axis column: (labels)
+	Column to summarize:
+	<P>
+	<FORM  onChange="setSumColName(this.blah)" ID="chooseCol1">
+	<SELECT NAME="blah">
+	
 <%	   		        			
-	   out.println(dropDownHtml1);
+	   // Go through the tags/elements
+	   
+	   // Write out an option tag for each one
+	   
+	   // If one is the col to be summarized, select it by default 
+	   
+	   for (String tag : firstRow.getCustomElements().getTags()) {
+			String entryValue = firstRow.getCustomElements().getValue(tag);
+			
+			if (tag.equalsIgnoreCase(sumColName)){
+				out.println("<OPTION SELECTED VALUE=\""+tag+"\">"+tag ); 
+			}
+			else{
+				out.println("<OPTION VALUE=\""+tag+"\">"+tag ); 
+			}
+	  } // for tag
 %> 
-<P>
-<FORM  onChange="colTypeChanged(this.chooseType2, 2)" ID="chooseColType2">
-<SELECT NAME="chooseType2">
-<OPTION VALUE="boolean">boolean
-<OPTION VALUE="number">number
-<OPTION VALUE="string">string
-<OPTION VALUE="date">date
-<OPTION VALUE="datetime">datetime
-<OPTION VALUE="timeofday">timeofday
-</SELECT>
-</FORM>	
-<P>
-<P>
-
-	X-axis column: (values)
-</P>
-<%	
-	   out.println(dropDownHtml2);
-%> 
-<P>
-<FORM  onChange="colTypeChanged(this.chooseType2, 2)" ID="chooseColType2">
-<SELECT NAME="chooseType2">
-<OPTION VALUE="boolean">boolean
-<OPTION VALUE="number">number
-<OPTION VALUE="string">string
-<OPTION VALUE="date">date
-<OPTION VALUE="datetime">datetime
-<OPTION VALUE="timeofday">timeofday
-</SELECT>
-</FORM>	
+	</SELECT>
+	</FORM>
 <P>
 
 	Filter column: (must be a column of TRUE or FALSE values in the spreadsheet)
 <%	
 	   Set<String> filterStrings = new HashSet(); 
-	   //filterStrings.addAll(firstRow.getCustomElements().getTags()); 
-	   filterStrings.add("bah3"); 
 	   
 	   System.out.println("firstRow: " + firstRow);
 	   
@@ -333,26 +318,40 @@
 		    }
 	  } // for tag		        		
 		        		
-		        			
-	   String dropDownHtml3 = HtmlUtil.createDropDownForm("test", "setCol3Name(this.blah)", "blah", 
-		        			filterStrings, 
-		        			filterStrings, 
-		        			"test", 
-		        			"chooseCol3");
-
-	   out.println(dropDownHtml3); 
-   
-	   
 %>
-<input type="button" id="updateColButton" value="Update columns" onClick="reloadWithNewParams();" /> 
+
+	<FORM  onChange="setFilterColName(this.blah)" ID="filterCol">
+	<SELECT NAME="blah">
+	
+<%	   		        			
+	   
+	   for (String tag : filterStrings) {
+			
+			if (tag.equalsIgnoreCase(filterColName)){
+				out.println("<OPTION SELECTED VALUE=\""+tag+"\">"+tag ); 
+			}
+			else{
+				out.println("<OPTION VALUE=\""+tag+"\">"+tag ); 
+			}
+	  } // for tag
+	  
+	  // Add the null filter choice
+	  if (filterColName.equalsIgnoreCase("bah3")){
+	  	out.println("<OPTION SELECTED VALUE=\"bah3\">no filter" ); 
+	  }
+	  else{
+	    out.println("<OPTION VALUE=\"bah3\">no filter" );
+	  }
+%> 
+    
+	</SELECT>
+	</FORM>
+
+<input type="button" id="updateColButton" value="Update chart" onClick="reloadWithNewParams();" /> 
 	 
 	 
 	   
 </P>
-
-<HR>
-
-<A HREF="javascript:summarize()">See summary</A>
 
 <HR>
 

@@ -29,7 +29,6 @@ public class AuthenticationServlet extends ServletUtilBase {
 	throws IOException {
 	
 		
-		
 		/*aha:
 		// verify user is logged in
 	    UserService userService = UserServiceFactory.getUserService();

@@ -204,6 +204,7 @@
 		<servlet-name>ListSpreadsheets</servlet-name>
 		<url-pattern>/listSpreadsheets</url-pattern>
 	</servlet-mapping>
+	
 	<servlet>
 		<servlet-name>ChooseColumns</servlet-name>
 		<servlet-class>edu.washington.cs.aha.ShowColumnsServlet</servlet-class>
