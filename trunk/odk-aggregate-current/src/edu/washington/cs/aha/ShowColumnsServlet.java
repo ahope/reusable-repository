@@ -70,7 +70,8 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	        	
         	ListEntry firstRow = feed.getEntries().get(0);
         	
-        	String chartingForm = "<form action=\"javascript:doCharting();\">"
+        	String chartingForm = "<h1>ODK Viz</h1><h2>Make a Chart:</h2><p>If a chart doesn't look good, you may have to change the order of the data columns you selected.</p>"
+        		+ "<form action=\"javascript:doCharting();\">"
         		+ "<input id=\"spreadsheeturi\" type=\"hidden\" name=\"spreadsheeturi\" value=\""+ feedUri.toString() +"\" >"
         		+ "<div id=\"variableselection\">"
         		+ "<select id=\"columnselector\" >";
@@ -82,7 +83,7 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	}
         	
         	chartingForm += "</select></div><input type=\"submit\" id=\"dochart\" name=\"dochart\" />" +
-        			"</form><form id=\"mapform\" action=\"javascript:doMapping();\"></form><div id=\"chart_div\" ></div><div style=\"width: 400px; height: 300px;\" id=\"map_div\"></div>";
+        			"</form><h2>Make a Map:</h2><form id=\"mapform\" action=\"javascript:doMapping();\"></form><div id=\"chart_div\" ></div><div style=\"width: 400px; height: 300px;\" id=\"map_div\"></div>";
         	
         	resp.getWriter().print(chartingForm);
         	
