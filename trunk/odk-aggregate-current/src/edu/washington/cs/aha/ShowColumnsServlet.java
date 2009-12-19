@@ -78,8 +78,9 @@ public class ShowColumnsServlet extends ServletUtilBase {
         	
         	int charCounter = (int)'A';
         	
-        	for( String tag : firstRow.getCustomElements().getTags()){
+        	for( String tag : firstRow.getCustomElements().getTags() ){
         		chartingForm += "<option value=\""+((char)charCounter++)+"\" >" + tag + "</option>";
+        			//"<option value=\"`"+ tag +"`\" >" + tag + "</option>";
         	}
         	
         	chartingForm += "</select></div><input type=\"submit\" id=\"dochart\" name=\"dochart\" />" +
